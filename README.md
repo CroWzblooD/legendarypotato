@@ -20,7 +20,8 @@
 - [🏗️ Architecture](#️-architecture)
 - [🛠️ Tech Stack](#️-tech-stack)
 - [🚀 Quick Start](#-quick-start) - _See [QUICKSTART.md](backend/QUICKSTART.md) for details_
-- [� API Reference](#-api-reference)
+- [📡 API Reference](#-api-reference)
+- [🔮 Future Enhancements](#-future-enhancements)
 - [🐛 Troubleshooting](#-troubleshooting)
 - [🤝 Contributing](#-contributing)
 
@@ -59,7 +60,7 @@ Output:
 | **Natural Language Processing** | Gemini 2.5 Flash understands student requests in plain English |
 | **Smart Parameter Extraction** | Automatically extracts topic, difficulty, count from context |
 | **Intelligent Inference** | Uses student profiles and history to fill missing parameters |
-| **Multi-Tool Support** | Flashcard Generator, Note Maker, Concept Explainer |
+| **Multi-Tool Support** | Flashcard Generator, Note Maker, Concept Explainer | ⚠️We only created these as placeholders for demonstration purposes. The API is isolated and working otherwise
 | **Validation & Clarification** | Asks natural questions when information is missing |
 | **Full Analytics** | 5 PostgreSQL tables track every interaction |
 | **LangGraph Workflow** | 5-node state machine for reliable orchestration |
@@ -335,18 +336,10 @@ Output:
 
 ---
 
-## 🚀 Quick Start
+## -> Quick Start
 
 **📚 For detailed setup and usage instructions, see [QUICKSTART.md](backend/QUICKSTART.md)**
 
-The QUICKSTART guide includes:
-- ✅ Complete installation steps
-- ✅ Environment configuration
-- ✅ Database setup
-- ✅ Running the application
-- ✅ Interactive demo walkthrough
-- ✅ Troubleshooting tips
-- ✅ API usage examples
 
 ### **TL;DR - Get Running Fast**
 
@@ -441,6 +434,26 @@ Check service health.
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
+---
+
+## 🔮 Future Enhancements
+
+### **Vector DB for Scalable Tool Discovery**
+
+To make scaling to 80+ tools even smoother, we had planned to store all Tools, with their respective descriptions in a Vector DB.
+Having previous experience with RAG pipelines we wanted to use one of the LangGraph nodes to perform a semantic search and pick top `x` (over a threshold score) tools to use.
+
+After 24 hours of work we figured that we had to prioritize a working demo.
+
+We unfortunately ran out of time and had to drop this idea into future enhancements.
+
+```
+User Query → Gemini Embedding → Vector DB (Pinecone/Weaviate)
+    ↓
+Top 5 Similar Tools → PostgreSQL (params/metadata) → LLM Re-rank
+    ↓
+Selected Tool + Dynamic Schema → Continue Workflow
+```
 ---
 
 
