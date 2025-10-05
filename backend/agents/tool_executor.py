@@ -47,7 +47,7 @@ async def execute_tool(
         )
     
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=60.0) as client:  # Increased timeout to 60 seconds
             response = await client.post(endpoint, json=tool_input)
             
             execution_time = int((time.time() - start_time) * 1000)

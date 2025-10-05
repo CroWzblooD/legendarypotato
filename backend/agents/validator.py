@@ -34,7 +34,12 @@ async def validate_parameters(
     Returns:
         Tuple of (is_valid, tool_input_dict, missing_params)
     """
+    # Handle both ToolType enum and string
+    if isinstance(tool_type, str):
+        tool_type = ToolType(tool_type)
+    
     logger.info(f"Validating parameters for {tool_type.value}")
+    logger.info(f"Parameters received: {parameters}")
     
     try:
         if tool_type == ToolType.NOTE_MAKER:
@@ -45,7 +50,7 @@ async def validate_parameters(
             return await _validate_concept_explainer(parameters, user_info, chat_history)
             
     except Exception as e:
-        logger.error(f"Validation error: {e}")
+        logger.error(f"Validation error: {e}", exc_info=True)
         return False, None, ["validation_error"]
 
 

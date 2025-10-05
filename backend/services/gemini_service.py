@@ -21,6 +21,19 @@ from models.schemas import (
 logger = logging.getLogger(__name__)
 
 
+def clean_json_response(text: str) -> str:
+    """Clean JSON response from Gemini, removing markdown code blocks."""
+    text = text.strip()
+    # Remove ```json and ``` markers
+    if text.startswith("```json"):
+        text = text[7:]
+    elif text.startswith("```"):
+        text = text[3:]
+    if text.endswith("```"):
+        text = text[:-3]
+    return text.strip()
+
+
 class GeminiService:
     """Service for interacting with Google Gemini API."""
     
@@ -59,7 +72,7 @@ class GeminiService:
             ToolType enum indicating which tool to use
         """
         history_text = "\n".join([
-            f"{msg.role.value}: {msg.content}" 
+            f"{msg.role if isinstance(msg.role, str) else msg.role.value}: {msg.content}" 
             for msg in chat_history[-5:]  # Last 5 messages for context
         ])
         
@@ -148,7 +161,7 @@ Return ONLY the tool name (note_maker, flashcard_generator, or concept_explainer
         
         # Build conversation context
         history_text = "\n".join([
-            f"{msg.role.value}: {msg.content}" 
+            f"{msg.role if isinstance(msg.role, str) else msg.role.value}: {msg.content}" 
             for msg in chat_history[-10:]
         ])
         
@@ -220,17 +233,23 @@ Return ONLY valid JSON, no explanation.
         
         try:
             response = await self.llm.ainvoke(prompt)
-            result = json.loads(response.content.strip())
+            result = json.loads(clean_json_response(response.content))
             
             # Build ExtractedParameters
             inferred_params = {
-                param: result.get(param, "N/A") 
+                param: str(result.get(param, "N/A")) 
                 for param in result.get("inferred", [])
+            }
+            
+            # Clean parameters dict - remove metadata fields
+            clean_params = {
+                k: v for k, v in result.items()
+                if k not in ["inferred", "missing", "confidence"]
             }
             
             return ExtractedParameters(
                 tool_type=ToolType.NOTE_MAKER,
-                parameters=result,
+                parameters=clean_params,
                 confidence=result.get("confidence", 0.8),
                 missing_required=result.get("missing", []),
                 inferred_params=inferred_params
@@ -311,7 +330,7 @@ Return ONLY valid JSON, no explanation.
         
         try:
             response = await self.llm.ainvoke(prompt)
-            result = json.loads(response.content.strip())
+            result = json.loads(clean_json_response(response.content))
             
             # Validate count
             count = result.get("count", 5)
@@ -323,9 +342,15 @@ Return ONLY valid JSON, no explanation.
                 for param in result.get("inferred", [])
             }
             
+            # Clean parameters dict - remove metadata fields
+            clean_params = {
+                k: v for k, v in result.items()
+                if k not in ["inferred", "missing", "confidence"]
+            }
+            
             return ExtractedParameters(
                 tool_type=ToolType.FLASHCARD_GENERATOR,
-                parameters=result,
+                parameters=clean_params,
                 confidence=result.get("confidence", 0.8),
                 missing_required=result.get("missing", []),
                 inferred_params=inferred_params
@@ -397,16 +422,22 @@ Return ONLY valid JSON, no explanation.
         
         try:
             response = await self.llm.ainvoke(prompt)
-            result = json.loads(response.content.strip())
+            result = json.loads(clean_json_response(response.content))
             
             inferred_params = {
                 param: str(result.get(param, "N/A")) 
                 for param in result.get("inferred", [])
             }
             
+            # Clean parameters dict - remove metadata fields
+            clean_params = {
+                k: v for k, v in result.items()
+                if k not in ["inferred", "missing", "confidence"]
+            }
+            
             return ExtractedParameters(
                 tool_type=ToolType.CONCEPT_EXPLAINER,
-                parameters=result,
+                parameters=clean_params,
                 confidence=result.get("confidence", 0.8),
                 missing_required=result.get("missing", []),
                 inferred_params=inferred_params
@@ -443,6 +474,10 @@ Return ONLY valid JSON, no explanation.
         Returns:
             Natural clarification question
         """
+        # Handle both ToolType enum and string
+        if isinstance(tool_type, str):
+            tool_type = ToolType(tool_type)
+            
         param_str = ", ".join(missing_params)
         
         prompt = f"""Generate a natural, friendly clarification question.

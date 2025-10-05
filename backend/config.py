@@ -29,7 +29,12 @@ class Settings(BaseSettings):
     gemini_max_tokens: int = 2048
     
     # Database
-    database_url: str = "sqlite+aiosqlite:///./database/tutor.db"
+    database_url: str = "postgresql+asyncpg://postgres.skwxttypekeqxjyixrml:yophoria%40@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
+    
+    # Supabase
+    supabase_url: str = ""
+    supabase_anon_key: str = ""
+    supabase_service_key: str = ""
     
     # CORS
     allowed_origins: str = "http://localhost:3000,http://127.0.0.1:3000"

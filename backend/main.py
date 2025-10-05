@@ -26,7 +26,20 @@ async def lifespan(app: FastAPI):
     logger.info(f"Environment: {settings.app_env}")
     logger.info(f"Gemini Model: {settings.gemini_model}")
     
-    # Startup
+    # Startup - Initialize database
+    try:
+        from database import init_db, check_db_connection
+        logger.info("Initializing database connection...")
+        
+        if await check_db_connection():
+            logger.info("✅ Database connection successful!")
+            await init_db()
+            logger.info("✅ Database initialized!")
+        else:
+            logger.error("❌ Database connection failed!")
+    except Exception as e:
+        logger.error(f"❌ Database initialization error: {e}")
+    
     yield
     
     # Shutdown
