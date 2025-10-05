@@ -1,57 +1,166 @@
 # 🎓 AI Tutor Orchestrator
 
-**Intelligent Middleware for Autonomous Educational Tool Orchestration**
+> **Intelligent Middleware for Autonomous Educational Tool Orchestration**
 
-Built for the AI Agent Engineering Hackathon - Task 2
+An advanced AI-powered orchestration system that intelligently routes student requests to the most appropriate educational tools using Google Gemini AI, LangGraph workflows, and PostgreSQL persistence.
+
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-00A67E?style=flat&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python)](https://python.org)
+[![LangGraph](https://img.shields.io/badge/LangGraph-0.0.65-1C3A56?style=flat)](https://github.com/langchain-ai/langgraph)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?style=flat&logo=postgresql)](https://postgresql.org)
+[![Google Gemini](https://img.shields.io/badge/Gemini-1.5%20Flash-4285F4?style=flat&logo=google)](https://ai.google.dev/)
 
 ---
 
-## 🏆 Project Overview
+## 📋 Table of Contents
 
-An intelligent orchestration layer that sits between conversational AI tutors and educational tools, autonomously:
-- **Classifies** student intent from natural language
-- **Extracts** required parameters using multi-layer inference
-- **Validates** requests against tool schemas
-- **Executes** educational tools (Note Maker, Flashcard Generator, Concept Explainer)
-- **Adapts** to student profiles (mastery level, emotional state, teaching style)
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+- [Architecture](#-architecture)
+- [Project Structure](#-project-structure)
+- [Quick Start](#-quick-start)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Running the Application](#-running-the-application)
+- [API Documentation](#-api-documentation)
+- [Database Schema](#-database-schema)
+- [Demo Script](#-demo-script)
+- [Troubleshooting](#-troubleshooting)
 
-### **Key Innovation: 40% Score Focus**
-Multi-layer parameter extraction:
-1. **Explicit** - Directly stated parameters
-2. **Inference** - "struggling" → difficulty: "easy"
-3. **Context** - Multi-turn conversation tracking
-4. **Profile** - Student mastery/emotion adaptation
-5. **Defaults** - Smart fallbacks
+---
+
+## 🌟 Overview
+
+The **AI Tutor Orchestrator** is an intelligent middleware system designed for educational technology platforms. It uses advanced AI to:
+
+1. **Understand** student intent from natural language requests
+2. **Extract** required parameters automatically
+3. **Infer** missing information using context and user profiles
+4. **Validate** all inputs against tool schemas
+5. **Execute** the appropriate educational tool
+6. **Persist** all interactions to PostgreSQL for analytics
+
+### 🎯 Problem Solved
+
+Traditional educational platforms require students to manually navigate through different tools and fill out forms. This orchestrator:
+
+- ✅ Eliminates manual tool selection
+- ✅ Automatically infers missing parameters
+- ✅ Provides intelligent context-aware assistance
+- ✅ Tracks all interactions for improvement
+- ✅ Adapts to student learning profiles
+
+---
+
+## ⚡ Key Features
+
+### 🤖 AI-Powered Intent Classification
+- Uses **Google Gemini 1.5 Flash** for natural language understanding
+- Classifies student requests into tool categories with 90-100% confidence
+- Supports: Note Maker, Flashcard Generator, Concept Explainer
+
+### 🔍 Smart Parameter Extraction
+- Automatically extracts parameters from conversational text
+- **Infers missing parameters** using:
+  - User profile (grade level, learning style)
+  - Conversation history
+  - Contextual clues
+- Provides reasoning for each inference
+
+### ✅ Robust Validation
+- Pydantic schema validation for all tool inputs
+- Detects missing required parameters
+- Generates natural language clarification questions
+
+### 🗄️ Complete PostgreSQL Integration
+- **5 tables** tracking all operations
+- Hosted on **Supabase** for scalability
+- Full analytics on parameter inference accuracy
+
+### 📊 Educational Logging System
+- **Color-coded terminal output** for workflow visualization
+- Shows intent classification, parameter extraction reasoning, and tool execution metrics
+- Perfect for demonstrations and debugging
+
+### 🔄 LangGraph Workflow
+- **5-node state machine** orchestration
+- Handles complex branching logic
+- Maintains state across async operations
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-┌──────────────────────┐
-│   Next.js Frontend   │  Beautiful chat UI with tool renderers
-│     (Port 3000)      │
-└──────────┬───────────┘
-           │ HTTP
-           ↓
-┌──────────────────────┐
-│  FastAPI Orchestrator│
-│     (Port 8000)      │
-│                      │
-│  ┌────────────────┐ │
-│  │  LangGraph     │ │  1. Intent Classification
-│  │   Workflow     │ │  2. Parameter Extraction (Gemini)
-│  │                │ │  3. Schema Validation (Pydantic)
-│  │  Gemini 1.5    │ │  4. Tool Routing
-│  │    Flash       │ │  5. Response Processing
-│  └────────────────┘ │
-└──────────┬───────────┘
-           │ HTTP
-           ↓
-┌──────────────────────┐
-│ Educational Tools    │  • Note Maker
-│     (Port 8001)      │  • Flashcard Generator
-└──────────────────────┘  • Concept Explainer
+┌──────────────────────────────────────────────────────────┐
+│                       Student                             │
+└─────────────────────┬────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────────────────┐
+│           FastAPI Orchestrator (Port 8000)               │
+│  ┌────────────────────────────────────────────────┐     │
+│  │          LangGraph Workflow (5 Nodes)          │     │
+│  │  1. Intent Classification (Gemini AI)          │     │
+│  │  2. Parameter Extraction (Gemini AI)           │     │
+│  │  3. Parameter Validation (Pydantic)            │     │
+│  │  4. Tool Execution / Clarification             │     │
+│  │  5. Response Generation                        │     │
+│  └────────────────────────────────────────────────┘     │
+└─────────────────────┬────────────────────────────────────┘
+                      │
+         ┌────────────┼────────────┐
+         │            │            │
+         ▼            ▼            ▼
+  ┌──────────┐  ┌─────────┐  ┌──────────┐
+  │ Gemini   │  │ Tools   │  │PostgreSQL│
+  │ 1.5Flash │  │ Service │  │(Supabase)│
+  │          │  │Port 8001│  │5 Tables  │
+  └──────────┘  └─────────┘  └──────────┘
+```
+
+---
+
+## 📁 Project Structure
+
+```
+backend/
+├── 📁 agents/                    # AI Agent modules
+│   ├── tool_executor.py          # Tool execution logic
+│   └── validator.py              # Parameter validation
+│
+├── 📁 api/                       # FastAPI routes
+│   └── routes.py                 # Main API endpoints
+│
+├── 📁 config/                    # Configuration
+│   └── settings.py               # Environment settings
+│
+├── 📁 database/                  # Database layer
+│   ├── database.py               # Connection management
+│   ├── models.py                 # SQLAlchemy models (5 tables)
+│   └── 📁 repositories/          # Data access layer
+│
+├── 📁 graph/                     # LangGraph workflow
+│   └── workflow.py               # 5-node orchestration
+│
+├── 📁 models/                    # Pydantic schemas
+│   └── schemas.py                # Request/response models
+│
+├── 📁 services/                  # External services
+│   └── gemini_service.py         # Gemini AI client
+│
+├── 📁 utils/                     # Utilities
+│   └── educational_logger.py     # Color-coded logging
+│
+├── 📁 scripts/                   # Utility scripts
+│   ├── demo.py                   # Interactive demo ⭐
+│   ├── init_db.py                # Database setup
+│   └── run_tools_service.py      # Educational tools
+│
+├── main.py                       # FastAPI entry point
+├── requirements.txt              # Dependencies
+├── .env.example                  # Config template
+└── README.md                     # This file!
 ```
 
 ---
@@ -59,386 +168,357 @@ Multi-layer parameter extraction:
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.11+
-- Node.js 18+
-- Google Gemini API Key (FREE)
 
-### 1. Clone Repository
+- **Python 3.11+**
+- **PostgreSQL** or **Supabase Account** (free)
+- **Google API Key** for Gemini AI
 
-```bash
-cd legendarypotato
-```
-
-### 2. Backend Setup
+### Installation (5 Minutes)
 
 ```bash
-cd backend
+# 1. Clone repository
+git clone <repo-url>
+cd legendarypotato/backend
 
-# Install dependencies
+# 2. Create virtual environment
+python -m venv venv
+venv\Scripts\activate  # Windows
+# source venv/bin/activate  # Mac/Linux
+
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# Create .env file
+# 4. Setup configuration
 cp .env.example .env
+# Edit .env with your credentials:
+#   - GOOGLE_API_KEY (from https://ai.google.dev/)
+#   - DATABASE_URL (from Supabase or local PostgreSQL)
 
-# Edit .env and add your Gemini API key:
-# GOOGLE_API_KEY=your_key_here
+# 5. Initialize database
+python scripts/init_db.py
+
+# 6. Run the system (3 terminals)
+# Terminal 1: Tools Service
+python scripts/run_tools_service.py
+
+# Terminal 2: Orchestrator
+python main.py
+
+# Terminal 3: Interactive Demo
+python scripts/demo.py
 ```
 
-### 3. Frontend Setup
+---
 
-```bash
-cd ../frontend
+## ⚙️ Configuration
 
-# Install dependencies
-npm install
-# or
-pnpm install
+### Required Environment Variables
+
+Edit `.env` file:
+
+```ini
+# Google Gemini AI (REQUIRED)
+GOOGLE_API_KEY=your_api_key_here
+
+# PostgreSQL Database (REQUIRED)
+DATABASE_URL=postgresql+asyncpg://user:pass@host:5432/db
+
+# Optional: Supabase
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your_key
+SUPABASE_SERVICE_KEY=your_key
+
+# Application Settings
+APP_PORT=8000
+DEBUG=True
+LOG_LEVEL=INFO
 ```
 
-### 4. Run Services
+### Get Your Credentials
 
-**Terminal 1 - Educational Tools (Port 8001)**
+1. **Google Gemini API Key**: [https://ai.google.dev/](https://ai.google.dev/)
+2. **Supabase Database**: [https://supabase.com](https://supabase.com) (free tier available)
+
+---
+
+## 🚀 Running the Application
+
+### Step 1: Start Tools Service (Port 8001)
+
 ```bash
-cd backend
-python tools_main.py
+python scripts/run_tools_service.py
 ```
 
-**Terminal 2 - Orchestrator (Port 8000)**
+Expected output:
+```
+INFO:     Uvicorn running on http://0.0.0.0:8001
+INFO:     Application startup complete.
+```
+
+### Step 2: Start Orchestrator (Port 8000)
+
 ```bash
-cd backend
 python main.py
 ```
 
-**Terminal 3 - Frontend (Port 3000)**
-```bash
-cd frontend
-npm run dev
+Expected output:
+```
+INFO:     Starting AI Tutor Orchestrator...
+INFO:     ✅ Database connection successful!
+INFO:     ✅ Database initialized!
+INFO:     Uvicorn running on http://0.0.0.0:8000
 ```
 
-### 5. Open Browser
-
-Visit: **http://localhost:3000**
-
----
-
-## 🎯 Features
-
-### Core Orchestration
-- ✅ **Intent Classification** - Gemini-powered tool selection
-- ✅ **Smart Parameter Extraction** - Multi-layer inference engine
-- ✅ **Schema Validation** - Pydantic type safety
-- ✅ **Tool Execution** - HTTP-based tool integration
-- ✅ **Error Recovery** - Clarification questions
-
-### Personalization
-- ✅ **Mastery Level Adaptation** - Adjusts difficulty (1-10 scale)
-- ✅ **Emotional State** - Responds to confused/anxious/focused states
-- ✅ **Teaching Style** - Direct/Socratic/Visual/Flipped
-- ✅ **Learning Preferences** - Remembers student choices
-
-### Educational Tools
-1. **Note Maker**
-   - Structured notes with examples and analogies
-   - Adapts style to student preferences
-   - Includes practice suggestions
-
-2. **Flashcard Generator**
-   - 1-20 cards per request
-   - Easy/Medium/Hard difficulty
-   - Personalized to mastery level
-
-3. **Concept Explainer**
-   - Basic to comprehensive depth
-   - Examples and visual aids
-   - Practice questions
-
----
-
-## 📊 Demo Scenarios
-
-### Scenario 1: Direct Request
-```
-Student: "Create 5 flashcards on photosynthesis at medium difficulty"
-```
-**System extracts:**
-- topic: "photosynthesis"
-- count: 5
-- difficulty: "medium"
-- subject: "Biology" (inferred)
-
-### Scenario 2: Inference Required
-```
-Student: "I'm struggling with calculus derivatives, need practice"
-```
-**System infers:**
-- tool: flashcard_generator (from "practice")
-- difficulty: "easy" (from "struggling")
-- topic: "derivatives"
-- subject: "calculus"
-- count: 5 (default)
-
-### Scenario 3: Multi-Turn Context
-```
-Turn 1: "I'm in grade 10 studying biology"
-Turn 2: "Can you explain photosynthesis?"
-```
-**System remembers:**
-- Uses grade_level from Turn 1
-- Maps to mastery level
-- Chooses concept_explainer tool
-
----
-
-## 🧪 Testing
-
-### Test with cURL
+### Step 3: Run Interactive Demo
 
 ```bash
-curl -X POST http://localhost:8000/api/chat \
-  -H "Content-Type: application/json" \
-  -d '{
-    "message": "I need flashcards on photosynthesis",
-    "user_info": {
-      "user_id": "test123",
-      "name": "Test Student",
-      "grade_level": "10",
-      "learning_style_summary": "Visual learner",
-      "emotional_state_summary": "Focused",
-      "mastery_level_summary": "Level 6"
-    }
-  }'
+python scripts/demo.py
 ```
 
-### Interactive API Docs
-- Orchestrator: http://localhost:8000/docs
-- Tools: http://localhost:8001/docs
-
----
-
-## 📁 Project Structure
-
+You'll see a beautiful terminal interface:
 ```
-legendarypotato/
-├── backend/
-│   ├── agents/              # Orchestration logic
-│   │   ├── validator.py     # Parameter validation
-│   │   └── tool_executor.py # Tool API calls
-│   ├── api/
-│   │   └── routes.py        # FastAPI endpoints
-│   ├── graph/
-│   │   └── workflow.py      # LangGraph state machine
-│   ├── models/
-│   │   └── schemas.py       # Pydantic models
-│   ├── services/
-│   │   └── gemini_service.py # Gemini AI integration
-│   ├── config.py
-│   ├── main.py              # Orchestrator app
-│   └── tools_main.py        # Tools service
-│
-├── frontend/
-│   ├── app/
-│   │   ├── page.tsx         # Main chat page
-│   │   └── layout.tsx
-│   ├── components/
-│   │   ├── chat/            # Chat components
-│   │   ├── student/         # Profile components
-│   │   └── tools/           # Tool renderers
-│   └── lib/
-│       ├── api.ts           # API client
-│       └── types.ts         # TypeScript types
-│
-├── PROGRESS.md              # Development progress
-└── README.md                # This file
+╔════════════════════════════════════════════════════════╗
+║          🎓 AI TUTOR ORCHESTRATOR DEMO 🎓             ║
+║     Intelligent Educational Tool Orchestration        ║
+╚════════════════════════════════════════════════════════╝
+
+Your message: I need help with calculus derivatives
+
+🔄 Processing Pipeline:
+   ├─ Analyzing intent...
+   ├─ Extracting parameters...
+   ├─ Validating inputs...
+   └─ Executing workflow...
+
+✅ Generated 5 flashcards on calculus derivatives!
 ```
 
----
+### Verify Services
 
-## 🛠️ Technology Stack
-
-### Backend
-- **Python 3.11+**
-- **FastAPI** - Web framework
-- **LangGraph** - Agent orchestration
-- **LangChain** - LLM integration
-- **Google Gemini 1.5 Flash** - AI model
-- **Pydantic v2** - Data validation
-- **SQLite** - State storage (optional)
-
-### Frontend
-- **Next.js 14** - React framework
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
-- **shadcn/ui** - Component library
-- **Axios** - HTTP client
+- Tools API: [http://localhost:8001/docs](http://localhost:8001/docs)
+- Orchestrator API: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 
-## 🎨 UI Features
+## 📚 API Documentation
 
-- 🎯 **Beautiful Chat Interface** - Modern, responsive design
-- 📊 **Tool-Specific Renderers**
-  - Accordion notes with collapsible sections
-  - Interactive flip flashcards
-  - Tabbed explanations
-- 👤 **Student Profile Sidebar** - Dynamic profile management
-- ⚡ **Real-time Updates** - Instant tool responses
-- 🎭 **Loading States** - Typing indicators
-- ❌ **Error Handling** - Graceful degradation
+### POST `/api/orchestrate`
+
+Main orchestration endpoint - send a student request and get intelligent tool execution.
+
+**Request:**
+```json
+{
+  "message": "I need practice problems on derivatives",
+  "user_info": {
+    "user_id": "student-123",
+    "name": "John Doe",
+    "grade_level": "college",
+    "learning_style_summary": "Visual learner",
+    "emotional_state_summary": "Ready to learn",
+    "mastery_level_summary": "Intermediate",
+    "teaching_style": "visual"
+  },
+  "chat_history": [],
+  "conversation_id": "conv-abc123"
+}
+```
+
+**Response:**
+```json
+{
+  "intent": "flashcard_generator",
+  "confidence": 95,
+  "extracted_params": {
+    "topic": "derivatives",
+    "count": 5,
+    "difficulty": "medium"
+  },
+  "tool_response": {
+    "flashcards": [...]
+  },
+  "execution_time_ms": 2500
+}
+```
+
+**Interactive API Docs**: Visit [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 
-## 📈 Scoring Alignment
+## 🗄️ Database Schema
 
-| Criterion | Weight | Implementation |
-|-----------|--------|----------------|
-| Parameter Extraction | 40% | Multi-layer extraction with Gemini + inference rules |
-| Tool Integration | 25% | 3 tools with proper validation and error handling |
-| Architecture | 20% | LangGraph workflow, clean separation of concerns |
-| UX | 10% | Beautiful UI, natural conversation flow |
-| Code Quality | 5% | Type safety, documentation, best practices |
+### Tables Overview
+
+| Table | Purpose | Key Fields |
+|-------|---------|------------|
+| `users` | Student profiles | name, grade_level, learning_style |
+| `conversations` | Chat sessions | user_id, started_at, message_count |
+| `chat_messages` | Message history | conversation_id, role, content |
+| `parameter_extractions` | Inference analytics | extracted_params, inferred_params, confidence |
+| `tool_executions` | Tool usage logs | tool_type, execution_time_ms, success |
+
+### Query Examples
+
+```sql
+-- Get user's conversation history
+SELECT * FROM chat_messages 
+WHERE conversation_id = 'conv-id' 
+ORDER BY created_at;
+
+-- Analyze parameter inference accuracy
+SELECT tool_type, AVG(confidence_score) as avg_confidence
+FROM parameter_extractions
+GROUP BY tool_type;
+
+-- Check tool performance
+SELECT tool_type, AVG(execution_time_ms) as avg_time
+FROM tool_executions
+GROUP BY tool_type;
+```
+
+---
+
+## 🎬 Demo Script
+
+The interactive demo (`scripts/demo.py`) provides a complete demonstration.
+
+### Features
+
+- ✨ Beautiful terminal UI with colors
+- 👤 User profile setup
+- 💬 Interactive conversation loop
+- 📊 Real-time processing indicators
+- 🗄️ Database persistence visualization
+- 📈 Session statistics
+
+### Example Interactions
+
+```
+Your message: I'm struggling with calculus derivatives
+
+→ Workflow:
+  ✅ Intent: flashcard_generator (95% confidence)
+  ✅ Extracted: topic, subject
+  ✅ Inferred: difficulty=easy (user said "struggling"), count=5
+  ✅ Generated 5 flashcards in 2.5s
+
+Your message: explain the chain rule in detail
+
+→ Workflow:
+  ✅ Intent: concept_explainer (98% confidence)
+  ✅ Extracted: concept="chain rule", desired_depth="detailed"
+  ✅ Generated comprehensive explanation in 3.1s
+```
+
+### Demo Commands
+
+- `demo` - Show example questions
+- `stats` - Display session statistics
+- `quit` / `exit` - End session
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Gemini API Errors
-```bash
-# Check API key
-cat backend/.env | grep GOOGLE_API_KEY
+### Database Connection Failed
 
-# Test API key
-curl -X POST 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=YOUR_KEY' \
-  -H 'Content-Type: application/json' \
-  -d '{"contents":[{"parts":[{"text":"Hello"}]}]}'
+**Solution**: Check `DATABASE_URL` in `.env` is correct
+
+```bash
+# Test connection
+python scripts/init_db.py
 ```
 
-### Port Already in Use
-```bash
-# Windows PowerShell
-Get-Process -Id (Get-NetTCPConnection -LocalPort 8000).OwningProcess | Stop-Process
+### Gemini API Key Invalid
 
-# Linux/Mac
-lsof -ti:8000 | xargs kill -9
+**Solution**: Verify key in `.env` has no spaces
+
+1. Get fresh key from [https://ai.google.dev/](https://ai.google.dev/)
+2. Update `.env`: `GOOGLE_API_KEY=your_key_here`
+
+### Tools Service Not Responding
+
+**Solution**: Ensure tools service is running
+
+```bash
+# Check if service is up
+curl http://localhost:8001/health
 ```
 
 ### Import Errors
-```bash
-# Ensure virtual environment
-python -m venv venv
-.\venv\Scripts\activate  # Windows
-source venv/bin/activate # Linux/Mac
 
-pip install -r requirements.txt
+**Solution**: Clear cache and reinstall
+
+```bash
+# Clear Python cache
+find . -type d -name __pycache__ -exec rm -rf {} +
+
+# Reinstall dependencies
+pip install -r requirements.txt --force-reinstall
+```
+
+### Port Already in Use
+
+**Solution**: Change port or kill existing process
+
+```bash
+# Windows
+netstat -ano | findstr :8000
+taskkill /PID <pid> /F
+
+# Mac/Linux
+lsof -ti:8000 | xargs kill -9
 ```
 
 ---
 
-## 🚢 Deployment
+## 📊 Performance Benchmarks
 
-### Backend (Railway/Render)
-```bash
-# Add Procfile
-web: uvicorn main:app --host 0.0.0.0 --port $PORT
-
-# Add runtime.txt
-python-3.11.0
-```
-
-### Frontend (Vercel)
-```bash
-# Deploy
-vercel deploy
-
-# Set environment variables
-NEXT_PUBLIC_API_URL=https://your-backend.railway.app
-```
+| Operation | Average Time |
+|-----------|--------------|
+| Intent Classification | 800-1200ms |
+| Parameter Extraction | 1000-1500ms |
+| Flashcard Generation | 2000-3000ms |
+| Note Generation | 4000-6000ms |
+| End-to-End Request | 4-8 seconds |
 
 ---
 
-## 📝 Documentation
+## 🤝 Contributing
 
-- [Backend README](backend/README.md) - Detailed backend docs
-- [API Documentation](http://localhost:8000/docs) - Interactive API docs
-- [Architecture Diagram](docs/architecture.md) - System design
-- [Demo Scenarios](docs/demo_scenarios.md) - Testing scenarios
+Contributions are welcome! Please:
 
----
-
-## 👨‍💻 Development
-
-### Adding a New Tool
-
-1. Add schema in `backend/models/schemas.py`
-2. Add validation in `backend/agents/validator.py`
-3. Add extraction logic in `backend/services/gemini_service.py`
-4. Create endpoint in `backend/tools_main.py`
-5. Add renderer in `frontend/components/tools/`
-
-### Environment Variables
-
-**Backend (.env)**
-```bash
-GOOGLE_API_KEY=your_gemini_key
-GEMINI_MODEL=gemini-1.5-flash
-APP_PORT=8000
-TOOL_SERVICE_URL=http://localhost:8001
-```
-
-**Frontend (.env.local)**
-```bash
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
----
-
-## 🎥 Demo Video Script
-
-1. **Introduction** (0:30)
-   - Show architecture diagram
-   - Explain orchestration concept
-
-2. **Parameter Extraction** (2:00)
-   - Direct request demo
-   - Inference demo ("struggling" → easy)
-   - Multi-turn context demo
-
-3. **Tool Integration** (1:30)
-   - Note Maker with beautiful rendering
-   - Flashcards with interaction
-   - Concept Explainer with tabs
-
-4. **Advanced Features** (1:00)
-   - Personalization adaptation
-   - Error handling
-   - Clarification questions
-
-5. **Technical Highlights** (0:30)
-   - LangGraph workflow
-   - Scalability to 80+ tools
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
 
 ---
 
 ## 📄 License
 
-MIT License - Feel free to use for educational purposes
+This project is licensed under the MIT License.
 
 ---
 
 ## 🙏 Acknowledgments
 
-- Google Gemini for powerful AI capabilities
-- LangChain/LangGraph for orchestration framework
-- Vercel for Next.js and deployment
-- shadcn/ui for beautiful components
+- **Google Gemini AI** for powerful language understanding
+- **LangChain/LangGraph** for workflow orchestration
+- **FastAPI** for modern async web framework
+- **Supabase** for PostgreSQL hosting
 
 ---
 
-## 📧 Contact
+## 📧 Support
 
-For questions or issues, please create an issue in the repository.
+For issues and questions:
+- **GitHub Issues**: Create an issue
+- **Documentation**: Visit `/docs` endpoint
 
 ---
 
-**Built with ❤️ for the AI Agent Engineering Hackathon**
+**Built with ❤️ for educational technology**
 
-*Demonstrating the power of intelligent orchestration in educational technology*
+*Last updated: October 2025*
