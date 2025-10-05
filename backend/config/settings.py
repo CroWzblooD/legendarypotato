@@ -1,55 +1,8 @@
 """
-Configuration management for the AI Tutor Orchestrator.
-Loads settings from environment variables with validation.
+Load environment variables from .env file.
+Use os.getenv() directly throughout the application.
 """
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List
+from dotenv import load_dotenv
 
-
-class Settings(BaseSettings):
-    """Application settings with environment variable support."""
-    
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        case_sensitive=False,
-        extra="allow"
-    )
-    
-    # Application
-    app_env: str = "development"
-    app_host: str = "0.0.0.0"
-    app_port: int = 8000
-    debug: bool = True
-    
-    # Google Gemini
-    google_api_key: str
-    gemini_model: str = "gemini-1.5-flash"
-    gemini_temperature: float = 0.7
-    gemini_max_tokens: int = 2048
-    
-    # Database
-    database_url: str = "postgresql+asyncpg://postgres.skwxttypekeqxjyixrml:yophoria%40@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
-    
-    # Supabase
-    supabase_url: str = ""
-    supabase_anon_key: str = ""
-    supabase_service_key: str = ""
-    
-    # CORS
-    allowed_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
-    
-    @property
-    def allowed_origins_list(self) -> List[str]:
-        """Parse allowed origins from comma-separated string."""
-        return [origin.strip() for origin in self.allowed_origins.split(",")]
-    
-    # Tool Service
-    tool_service_url: str = "http://localhost:8001"
-    
-    # Logging
-    log_level: str = "INFO"
-
-
-# Global settings instance
-settings = Settings()
+# Load .env file once on import
+load_dotenv()

@@ -63,7 +63,7 @@ Output:
 
 | Feature | Description |
 |---------|-------------|
-| **Natural Language Processing** | Gemini 1.5 Flash understands student requests in plain English |
+| **Natural Language Processing** | Gemini 2.5 Flash understands student requests in plain English |
 | **Smart Parameter Extraction** | Automatically extracts topic, difficulty, count from context |
 | **Intelligent Inference** | Uses student profiles and history to fill missing parameters |
 | **Multi-Tool Support** | Flashcard Generator, Note Maker, Concept Explainer |
@@ -125,7 +125,7 @@ Output:
 | Component | Technology | Purpose |
 |-----------|------------|---------|
 | **Backend** | FastAPI 0.100+ | Async web framework |
-| **AI** | Google Gemini 1.5 Flash | Natural language understanding |
+| **AI** | Google Gemini 2.5 Flash | Natural language understanding |
 | **Orchestration** | LangGraph 0.0.65 | State machine workflows |
 | **Database** | PostgreSQL 15+ (Supabase) | Analytics & persistence |
 | **ORM** | SQLAlchemy 2.0+ (async) | Database operations |

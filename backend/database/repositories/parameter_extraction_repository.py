@@ -1,6 +1,5 @@
 """
 Parameter Extraction Repository - Data access layer for parameter_extractions table.
-This is CRITICAL - tracks the 40% of hackathon score (parameter extraction quality)!
 """
 import logging
 from typing import List, Dict, Any, Optional
@@ -88,7 +87,6 @@ class ParameterExtractionRepository:
     async def get_inference_stats(self) -> Dict[str, Any]:
         """
         Get statistics about parameter inference.
-        This is KEY for hackathon scoring!
         """
         # Total extractions
         total_result = await self.session.execute(

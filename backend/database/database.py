@@ -2,6 +2,7 @@
 Database connection management with SQLAlchemy async engine.
 Handles PostgreSQL connection pooling and session management.
 """
+import os
 import logging
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import (
@@ -10,18 +11,23 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
 )
 from sqlalchemy.pool import NullPool
-from config import settings
+
+import config.settings  # Load .env
 
 logger = logging.getLogger(__name__)
 
 # Create async engine with connection pooling
+database_url = os.getenv("DATABASE_URL")
+if not database_url:
+    raise ValueError("DATABASE_URL environment variable is required!")
+
 engine = create_async_engine(
-    settings.database_url,
-    echo=False,  # Disable SQL query logging for clean output
-    pool_pre_ping=True,  # Verify connections before using
-    pool_size=10,  # Connection pool size
-    max_overflow=20,  # Additional connections if pool is full
-    pool_recycle=3600,  # Recycle connections after 1 hour
+    database_url,
+    echo=False,  
+    pool_pre_ping=True,  
+    pool_size=10, 
+    max_overflow=20, 
+    pool_recycle=3600,  
     connect_args={
         "server_settings": {
             "application_name": "ai_tutor_orchestrator",
@@ -44,12 +50,6 @@ async_session_maker = async_sessionmaker(
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     Dependency for FastAPI to get database session.
-    
-    Usage:
-        @app.get("/users")
-        async def get_users(db: AsyncSession = Depends(get_db)):
-            # Use db session here
-            pass
     """
     async with async_session_maker() as session:
         try:
@@ -65,7 +65,6 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 async def init_db():
     """
     Initialize database - create all tables.
-    Call this on application startup.
     """
     from .models import Base
     
@@ -87,7 +86,6 @@ async def init_db():
 async def close_db():
     """
     Close database connections.
-    Call this on application shutdown.
     """
     logger.info("Closing database connections...")
     await engine.dispose()

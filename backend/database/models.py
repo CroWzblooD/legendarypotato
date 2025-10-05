@@ -195,7 +195,6 @@ class ToolExecution(Base):
 class ParameterExtraction(Base):
     """
     Parameter extractions table.
-    Tracks parameter extraction quality and inference performance (40% of hackathon score!).
     """
     __tablename__ = "parameter_extractions"
     

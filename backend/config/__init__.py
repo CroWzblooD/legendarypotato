@@ -1,6 +1,7 @@
 """
-Configuration module for AI Tutor Orchestrator.
+Configuration module - loads .env file.
+Import this module to ensure environment variables are loaded.
 """
-from .settings import settings
+from . import settings  # This loads the .env file
 
-__all__ = ["settings"]
+__all__ = []

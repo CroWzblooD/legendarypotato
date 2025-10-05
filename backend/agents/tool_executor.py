@@ -1,12 +1,13 @@
 """
 Tool executor agent - calls educational tool APIs.
 """
+import os
 import logging
 import time
 import httpx
 from typing import Dict, Any
 
-from config import settings
+import config.settings  # Load .env
 from models.schemas import ToolType, ToolResponse
 
 logger = logging.getLogger(__name__)
@@ -31,10 +32,11 @@ async def execute_tool(
     start_time = time.time()
     
     # Map tool type to endpoint
+    tool_service_url = os.getenv("TOOL_SERVICE_URL", "http://localhost:8001")
     endpoints = {
-        ToolType.NOTE_MAKER: f"{settings.tool_service_url}/api/note-maker",
-        ToolType.FLASHCARD_GENERATOR: f"{settings.tool_service_url}/api/flashcard-generator",
-        ToolType.CONCEPT_EXPLAINER: f"{settings.tool_service_url}/api/concept-explainer"
+        ToolType.NOTE_MAKER: f"{tool_service_url}/api/note-maker",
+        ToolType.FLASHCARD_GENERATOR: f"{tool_service_url}/api/flashcard-generator",
+        ToolType.CONCEPT_EXPLAINER: f"{tool_service_url}/api/concept-explainer"
     }
     
     endpoint = endpoints.get(tool_type)

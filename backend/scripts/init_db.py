@@ -3,6 +3,7 @@ Database initialization script.
 Creates all tables and verifies PostgreSQL connection.
 Run this before starting the application for the first time.
 """
+import os
 import asyncio
 import logging
 import sys
@@ -11,9 +12,9 @@ from pathlib import Path
 # Add backend to path (parent of scripts folder)
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+import config.settings  # Load .env
 from database.database import init_db, check_db_connection, engine
 from database.models import Base
-from config import settings
 
 logging.basicConfig(
     level=logging.INFO,
@@ -30,8 +31,10 @@ async def initialize_database():
     print()
     
     # Display connection info
-    print(f"📊 Database URL: {settings.database_url[:50]}...")
-    print(f"🌍 Supabase URL: {settings.supabase_url}")
+    database_url = os.getenv("DATABASE_URL", "")
+    supabase_url = os.getenv("SUPABASE_URL", "")
+    print(f"📊 Database URL: {database_url[:50] if database_url else 'NOT SET'}...")
+    print(f"🌍 Supabase URL: {supabase_url}")
     print()
     
     # Step 1: Check connection

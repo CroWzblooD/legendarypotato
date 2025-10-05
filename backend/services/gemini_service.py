@@ -2,13 +2,14 @@
 Gemini AI service for intelligent parameter extraction and content generation.
 Handles all interactions with Google's Gemini API.
 """
+import os
 import json
 import logging
 from typing import Dict, Any, List, Optional
 from google import generativeai as genai
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-from config import settings
+import config.settings  # Load .env
 from models.schemas import (
     ToolType, 
     ChatMessage, 
@@ -39,20 +40,28 @@ class GeminiService:
     
     def __init__(self):
         """Initialize Gemini service with API key."""
-        genai.configure(api_key=settings.google_api_key)
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            raise ValueError("GOOGLE_API_KEY environment variable is required!")
+        
+        model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+        temperature = float(os.getenv("GEMINI_TEMPERATURE", "0.7"))
+        max_tokens = int(os.getenv("GEMINI_MAX_TOKENS", "2048"))
+        
+        genai.configure(api_key=api_key)
         
         # LangChain Gemini model
         self.llm = ChatGoogleGenerativeAI(
-            model=settings.gemini_model,
-            temperature=settings.gemini_temperature,
-            max_output_tokens=settings.gemini_max_tokens,
-            google_api_key=settings.google_api_key
+            model=model_name,
+            temperature=temperature,
+            max_output_tokens=max_tokens,
+            google_api_key=api_key
         )
         
         # Direct Gemini model for function calling
-        self.model = genai.GenerativeModel(settings.gemini_model)
+        self.model = genai.GenerativeModel(model_name)
         
-        logger.info(f"Gemini service initialized with model: {settings.gemini_model}")
+        logger.info(f"Gemini service initialized with model: {model_name}")
     
     async def classify_intent(
         self, 
@@ -141,7 +150,6 @@ Return ONLY the tool name (note_maker, flashcard_generator, or concept_explainer
         """
         Extract parameters required for the identified tool from conversation.
         
-        This is the CORE FUNCTION - 40% of the score depends on this!
         Uses multi-layer extraction:
         1. Explicit extraction (directly stated)
         2. Contextual inference (from conversation)
