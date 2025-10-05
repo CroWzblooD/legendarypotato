@@ -11,8 +11,9 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
 )
 from sqlalchemy.pool import NullPool
+from dotenv import load_dotenv
 
-import config.settings  # Load .env
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 

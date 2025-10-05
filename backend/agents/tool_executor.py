@@ -6,8 +6,10 @@ import logging
 import time
 import httpx
 from typing import Dict, Any
+from dotenv import load_dotenv
 
-import config.settings  # Load .env
+load_dotenv()
+
 from models.schemas import ToolType, ToolResponse
 
 logger = logging.getLogger(__name__)

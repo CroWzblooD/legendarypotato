@@ -8,7 +8,7 @@ from typing import Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.schemas import ChatRequest, ChatResponse, ToolResponse
-from graph.workflow import orchestrate
+from graph.orchestrator import orchestrate
 from database import get_db
 from database.repositories import UserRepository, ConversationRepository, MessageRepository
 

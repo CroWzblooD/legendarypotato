@@ -1,6 +1,6 @@
 """
 Main FastAPI application - AI Tutor Orchestrator.
-This is the entry point for the orchestration service.
+This is our entry point!
 """
 import os
 import logging
@@ -9,7 +9,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-import config.settings  # Load .env
+from dotenv import load_dotenv
+
+load_dotenv()
 from api import router
 
 # Configure logging

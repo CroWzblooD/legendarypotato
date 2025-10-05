@@ -46,7 +46,7 @@ from database.repositories import (
     ParameterExtractionRepository
 )
 from models.schemas import UserInfo, ChatMessage, TeachingStyle
-from graph.workflow import orchestrate
+from graph.orchestrator import orchestrate
 
 
 # ============================================================================
@@ -517,13 +517,23 @@ async def show_conversation_stats(conversation_id: str, db):
     """Show conversation statistics."""
     print_section("Conversation Statistics", "📊")
     
-    msg_repo = MessageRepository(db)
-    tool_repo = ToolExecutionRepository(db)
-    param_repo = ParameterExtractionRepository(db)
+    from sqlalchemy import select, func
+    from database.models import ChatMessage, ToolExecution
+    from uuid import UUID
     
-    # Get counts
-    message_count = await msg_repo.count_by_conversation(conversation_id)
-    tools = await tool_repo.get_by_conversation(conversation_id)
+    conv_uuid = UUID(conversation_id) if isinstance(conversation_id, str) else conversation_id
+    
+    # Get message count
+    message_count_result = await db.execute(
+        select(func.count()).select_from(ChatMessage).where(ChatMessage.conversation_id == conv_uuid)
+    )
+    message_count = message_count_result.scalar()
+    
+    # Get tool executions
+    tools_result = await db.execute(
+        select(ToolExecution).where(ToolExecution.conversation_id == conv_uuid)
+    )
+    tools = list(tools_result.scalars().all())
     
     # Prepare data
     stats = {

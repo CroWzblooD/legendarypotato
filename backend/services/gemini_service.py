@@ -8,8 +8,10 @@ import logging
 from typing import Dict, Any, List, Optional
 from google import generativeai as genai
 from langchain_google_genai import ChatGoogleGenerativeAI
+from dotenv import load_dotenv
 
-import config.settings  # Load .env
+load_dotenv()
+
 from models.schemas import (
     ToolType, 
     ChatMessage, 

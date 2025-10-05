@@ -82,12 +82,6 @@ class Conversation(Base):
         server_default=func.now()
     )
     message_count = Column(Integer, nullable=False, default=0, server_default="0")
-    status = Column(
-        String(50), 
-        nullable=False, 
-        default="active",
-        server_default="active"
-    )
     
     # Relationships
     user = relationship("User", back_populates="conversations")
@@ -97,16 +91,12 @@ class Conversation(Base):
     
     # Constraints
     __table_args__ = (
-        CheckConstraint(
-            "status IN ('active', 'completed', 'abandoned')",
-            name="status_check"
-        ),
         Index("idx_conversations_user_id", "user_id"),
         Index("idx_conversations_started_at", "started_at"),
     )
     
     def __repr__(self):
-        return f"<Conversation(id={self.conversation_id}, user_id={self.user_id}, status={self.status})>"
+        return f"<Conversation(id={self.conversation_id}, user_id={self.user_id})>"
 
 
 class ChatMessage(Base):

@@ -12,7 +12,9 @@ from pathlib import Path
 # Add backend to path (parent of scripts folder)
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-import config.settings  # Load .env
+from dotenv import load_dotenv
+load_dotenv()
+
 from database.database import init_db, check_db_connection, engine
 from database.models import Base
 
