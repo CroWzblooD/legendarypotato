@@ -12,11 +12,11 @@ Get the AI Tutor Orchestrator running in **5 minutes**!
 
 ## Step-by-Step Setup
 
-### 1️⃣ Clone & Setup Environment (1 min)
+### 1️⃣ Clone & Setup Environment
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/CroWzblooD/legendarypotato
 cd legendarypotato/backend
 
 # Create virtual environment
@@ -32,7 +32,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2️⃣ Configure Environment Variables (2 min)
+### 2️⃣ Configure Environment Variables
 
 ```bash
 # Copy template
@@ -64,7 +64,8 @@ SUPABASE_ANON_KEY=your_anon_key
 4. Click "Create API Key"
 5. Copy and paste into `.env`
 
-**Supabase Database (Easiest Option):**
+**Supabase Database:**
+> we used supabase to speed up the development process.
 1. Go to [https://supabase.com](https://supabase.com)
 2. Click "Start your project"
 3. Create a new project (free tier!)
@@ -95,12 +96,14 @@ DATABASE INITIALIZATION - AI Tutor Orchestrator
 Open **3 terminals** in the `backend` folder:
 
 **Terminal 1 - Educational Tools Service:**
+_This service takes care of all content generation with an LLM as a final step._
 ```bash
 python scripts/run_tools_service.py
 ```
 Wait for: `Uvicorn running on http://0.0.0.0:8001`
 
 **Terminal 2 - Orchestrator Service:**
+_This is the brain of the project. It delegates tasks to different modules._
 ```bash
 python main.py
 ```

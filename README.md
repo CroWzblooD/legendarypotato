@@ -2,17 +2,12 @@
 
 <div align="center">
 
-![AI Tutor Logo](https://img.shields.io/badge/AI%20Tutor-Orchestrator-blueviolet?style=for-the-badge&logo=openai)
+![AI Tutor Logo](https://img.shields.io/badge/AI%20Tutor-Orchestrator-blueviolet?style=for-the-badge&logo=python)
 ![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-00A67E?style=for-the-badge&logo=fastapi&logoColor=white)
 ![LangGraph](https://img.shields.io/badge/LangGraph-0.0.65-1C3A56?style=for-the-badge)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?style=for-the-badge&logo=postgresql&logoColor=white)
-![Google Gemini](https://img.shields.io/badge/Gemini-1.5%20Flash-4285F4?style=for-the-badge&logo=google&logoColor=white)
-
-**AI-powered intelligent tool orchestration for education**
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](http://makeapullrequest.com)
+![Google Gemini](https://img.shields.io/badge/Gemini-2.5%20Flash-4285F4?style=for-the-badge&logo=google&logoColor=white)
 
 </div>
 
@@ -24,9 +19,8 @@
 - [✨ Key Features](#-key-features)
 - [🏗️ Architecture](#️-architecture)
 - [🛠️ Tech Stack](#️-tech-stack)
-- [🚀 Quick Start](#-quick-start)
-- [💻 Usage](#-usage)
-- [🔧 API Reference](#-api-reference)
+- [🚀 Quick Start](#-quick-start) - _See [QUICKSTART.md](backend/QUICKSTART.md) for details_
+- [� API Reference](#-api-reference)
 - [🐛 Troubleshooting](#-troubleshooting)
 - [🤝 Contributing](#-contributing)
 
@@ -40,11 +34,11 @@
 Students face friction when using educational tools: manual selection, excessive forms, no context awareness.
 
 ### **The Solution**
-AI-powered middleware that:
-- 🤖 Understands natural language using Gemini AI (90-100% accuracy)
-- 🧠 Extracts and infers required parameters automatically
-- ✅ Validates inputs with Pydantic schemas
-- 📊 Tracks full analytics in PostgreSQL
+AI-powered _middleware_ that:
+-  Understands natural language using AI Agents
+-  Extracts and infers required parameters automatically
+-  Validates inputs with Pydantic schemas
+-  Tracks full analytics in PostgreSQL
 
 ### **Example**
 ```
@@ -56,7 +50,6 @@ Output:
   ✓ Difficulty: Easy (inferred from "struggling")
   ✓ Count: 5 flashcards
 ```
-
 ---
 
 ## ✨ Key Features
@@ -75,48 +68,256 @@ Output:
 
 ## 🏗️ Architecture
 
+### **Complete System Architecture**
+
 ```
-┌──────────────┐
-│   STUDENT    │
-│ (Natural Lang)│
-└──────┬───────┘
-       │
-       ▼
-┌─────────────────────────────────────┐
-│   FASTAPI ORCHESTRATOR (Port 8000) │
-│                                     │
-│  ┌─────────────────────────────┐   │
-│  │   LangGraph Workflow        │   │
-│  │                             │   │
-│  │  1. Classify Intent         │   │
-│  │  2. Extract Parameters      │   │
-│  │  3. Validate Schema         │   │
-│  │  4. Execute / Clarify       │   │
-│  │  5. Generate Response       │   │
-│  └─────────────────────────────┘   │
-└────┬────────────────┬───────────────┘
-     │                │
-┌────▼─────┐    ┌────▼────────┐
-│ Gemini AI│    │ PostgreSQL  │
-│  (NLP)   │    │  (Analytics)│
-└────┬─────┘    └─────────────┘
-     │
-┌────▼──────────┐
-│ Tools Service │
-│  (Port 8001)  │
-│               │
-│ • Flashcards  │
-│ • Notes       │
-│ • Explainer   │
-└───────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              STUDENT / FRONTEND                                 │
+│                         (Natural Language Requests)                             │
+└────────────────────────────────────┬────────────────────────────────────────────┘
+                                     │ HTTP POST /api/chat
+                                     ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                       FASTAPI ORCHESTRATOR (Port 8000)                          │
+│                                                                                 │
+│  ┌────────────────────────────────────────────────────────────────────────┐    │
+│  │                         API LAYER (api/routes.py)                      │    │
+│  │  • POST /api/chat - Main orchestration endpoint                       │    │
+│  │  • GET /api/health - Health check                                     │    │
+│  │  • GET /api/tools - List available tools                              │    │
+│  └────────────────────────────────┬───────────────────────────────────────┘    │
+│                                   │                                             │
+│                                   ▼                                             │
+│  ┌────────────────────────────────────────────────────────────────────────┐    │
+│  │              DATABASE LAYER (database/repositories/)                   │    │
+│  │  • UserRepository - Get/create user profiles                          │    │
+│  │  • ConversationRepository - Manage chat sessions                      │    │
+│  │  • MessageRepository - Load chat history                              │    │
+│  └────────────────────────────────┬───────────────────────────────────────┘    │
+│                                   │                                             │
+│                                   ▼                                             │
+│  ┌────────────────────────────────────────────────────────────────────────┐    │
+│  │                    LANGGRAPH WORKFLOW ORCHESTRATOR                     │    │
+│  │                      (graph/orchestrator.py)                           │    │
+│  │                                                                        │    │
+│  │  ┌──────────────────────────────────────────────────────────────┐     │    │
+│  │  │              LANGGRAPH STATE MACHINE (workflow.py)           │     │    │
+│  │  │                                                              │     │    │
+│  │  │  ┌────────────────────┐                                     │     │    │
+│  │  │  │  NODE 1: CLASSIFY  │  agents/                           │     │    │
+│  │  │  │  Intent Classifier │  • Gemini AI Service               │     │    │
+│  │  │  │  (graph/nodes/)    │  • Tool: classify_intent()         │     │    │
+│  │  │  └─────────┬──────────┘  • Output: ToolType enum           │     │    │
+│  │  │            │                                                │     │    │
+│  │  │            ▼                                                │     │    │
+│  │  │  ┌────────────────────┐                                     │     │    │
+│  │  │  │  NODE 2: EXTRACT   │  agents/                           │     │    │
+│  │  │  │  Parameter Extract │  • Gemini AI Service               │     │    │
+│  │  │  │  (graph/nodes/)    │  • Tool: extract_parameters()      │     │    │
+│  │  │  └─────────┬──────────┘  • Output: ExtractedParameters     │     │    │
+│  │  │            │             • SAVES TO: parameter_extractions │     │    │
+│  │  │            ▼                                                │     │    │
+│  │  │  ┌────────────────────┐                                     │     │    │
+│  │  │  │  NODE 3: VALIDATE  │  agents/validator.py               │     │    │
+│  │  │  │  Schema Validation │  • Pydantic Models                 │     │    │
+│  │  │  │  (graph/nodes/)    │  • Tool Input Schemas              │     │    │
+│  │  │  └─────────┬──────────┘  • Output: bool + tool_input       │     │    │
+│  │  │            │                                                │     │    │
+│  │  │            ▼                                                │     │    │
+│  │  │    ┌───────────────┐                                        │     │    │
+│  │  │    │  CONDITIONAL  │                                        │     │    │
+│  │  │    │   ROUTING:    │                                        │     │    │
+│  │  │    │ should_clarify│                                        │     │    │
+│  │  │    └───┬───────┬───┘                                        │     │    │
+│  │  │        │       │                                            │     │    │
+│  │  │  Valid │       │ Invalid                                    │     │    │
+│  │  │        │       │                                            │     │    │
+│  │  │        ▼       ▼                                            │     │    │
+│  │  │  ┌──────────┐ ┌──────────┐                                 │     │    │
+│  │  │  │ NODE 4a: │ │ NODE 4b: │                                 │     │    │
+│  │  │  │ EXECUTE  │ │ CLARIFY  │                                 │     │    │
+│  │  │  │ Tool Call│ │ Question │                                 │     │    │
+│  │  │  │ (nodes/) │ │ (nodes/) │                                 │     │    │
+│  │  │  └────┬─────┘ └────┬─────┘                                 │     │    │
+│  │  │       │            │                                        │     │    │
+│  │  │       │            │                                        │     │    │
+│  │  │       └────────────┘                                        │     │    │
+│  │  │                │                                            │     │    │
+│  │  │                ▼                                            │     │    │
+│  │  │            [ END ]                                          │     │    │
+│  │  │                                                              │     │    │
+│  │  └──────────────────────────────────────────────────────────────┘     │    │
+│  │                                                                        │    │
+│  │  State Management (graph/utils/):                                     │    │
+│  │  • state_manager.py - Initial state creation, step tracking           │    │
+│  │  • node_persistence.py - Database save operations per node            │    │
+│  └────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                 │
+└────┬──────────────────────┬──────────────────────┬───────────────────────┬─────┘
+     │                      │                      │                       │
+     │                      │                      │                       │
+     ▼                      ▼                      ▼                       ▼
+┌─────────────┐    ┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐
+│  GEMINI AI  │    │   POSTGRESQL    │   │  TOOLS SERVICE  │   │  UTILITIES      │
+│  SERVICE    │    │   DATABASE      │   │  (Port 8001)    │   │                 │
+│ (services/) │    │  (Supabase)     │   │  (scripts/)     │   │ • Educational   │
+│             │    │                 │   │                 │   │   Logger        │
+│ Methods:    │    │ 5 Tables:       │   │ 3 Endpoints:    │   │ • Setup Scripts │
+│ • classify_ │    │ ┌─────────────┐ │   │                 │   │                 │
+│   intent()  │    │ │   users     │ │   │ POST /api/      │   │                 │
+│             │    │ │ • user_id   │ │   │ note-maker      │   │                 │
+│ • extract_  │    │ │ • profile   │ │   │ ├─ Gemini Gen  │   │                 │
+│   parameters│    │ │ • grade     │ │   │ └─ NoteMaker   │   │                 │
+│   ()        │    │ └─────────────┘ │   │    Output       │   │                 │
+│             │    │                 │   │                 │   │                 │
+│ • generate_ │    │ ┌─────────────┐ │   │ POST /api/      │   │                 │
+│   clarifica │    │ │conversations│ │   │ flashcard-      │   │                 │
+│   tion()    │    │ │ • conv_id   │ │   │ generator       │   │                 │
+│             │    │ │ • user_id   │ │   │ ├─ Gemini Gen  │   │                 │
+│ Model:      │    │ │ • started_at│ │   │ └─ Flashcard   │   │                 │
+│ Gemini 2.5  │    │ └─────────────┘ │   │    Output       │   │                 │
+│ Flash       │    │                 │   │                 │   │                 │
+│             │    │ ┌─────────────┐ │   │ POST /api/      │   │                 │
+│ Features:   │    │ │chat_messages│ │   │ concept-        │   │                 │
+│ • NLP       │    │ │ • message_id│ │   │ explainer       │   │                 │
+│ • Context   │    │ │ • role      │ │   │ ├─ Gemini Gen  │   │                 │
+│ • Inference │    │ │ • content   │ │   │ └─ Explainer   │   │                 │
+│             │    │ │ • timestamp │ │   │    Output       │   │                 │
+│             │    │ └─────────────┘ │   │                 │   │                 │
+│             │    │                 │   │                 │   │                 │
+│             │    │ ┌─────────────┐ │   │                 │   │                 │
+│             │    │ │parameter_   │ │   │                 │   │                 │
+│             │    │ │extractions  │ │   │                 │   │                 │
+│             │    │ │ • extracted │ │   │                 │   │                 │
+│             │    │ │ • inferred  │ │   │                 │   │                 │
+│             │    │ │ • confidence│ │   │                 │   │                 │
+│             │    │ └─────────────┘ │   │                 │   │                 │
+│             │    │                 │   │                 │   │                 │
+│             │    │ ┌─────────────┐ │   │                 │   │                 │
+│             │    │ │tool_        │ │   │                 │   │                 │
+│             │    │ │executions   │ │   │                 │   │                 │
+│             │    │ │ • exec_id   │ │   │                 │   │                 │
+│             │    │ │ • tool_type │ │   │                 │   │                 │
+│             │    │ │ • input     │ │   │                 │   │                 │
+│             │    │ │ • output    │ │   │                 │   │                 │
+│             │    │ │ • success   │ │   │                 │   │                 │
+│             │    │ │ • exec_time │ │   │                 │   │                 │
+│             │    │ └─────────────┘ │   │                 │   │                 │
+└─────────────┘    └─────────────────┘   └─────────────────┘   └─────────────────┘
 ```
 
-**Data Flow:**
-1. Student sends natural language request
-2. Gemini classifies intent and extracts parameters
-3. Pydantic validates all fields
-4. System calls tool API or requests clarification
-5. Results saved to database and returned to student
+### **Component Breakdown**
+
+#### **1. API Layer** (`api/routes.py`)
+- **Main Endpoint**: `POST /api/chat` - Receives student messages
+- **Responsibilities**: 
+  - Request validation (ChatRequest → ChatResponse)
+  - User/conversation creation via repositories
+  - Chat history loading from database
+  - Workflow orchestration invocation
+  - Database transaction management (commit/rollback)
+
+#### **2. Database Layer** (`database/`)
+- **Connection**: SQLAlchemy async engine with PostgreSQL (Supabase)
+- **Repositories** (Repository Pattern):
+  - `UserRepository` - CRUD for student profiles
+  - `ConversationRepository` - Manage chat sessions
+  - `MessageRepository` - Chat message history
+  - `ParameterExtractionRepository` - **Critical for scoring!**
+  - `ToolExecutionRepository` - Tool usage analytics
+- **Models**: 5 tables with relationships, indexes, constraints
+
+#### **3. LangGraph Workflow** (`graph/`)
+- **Orchestrator** (`orchestrator.py`): Entry point, invokes graph
+- **Workflow** (`workflow.py`): Defines state machine structure
+- **5 Nodes** (`graph/nodes/`):
+  1. **Intent Classifier** - Gemini AI determines tool type
+  2. **Parameter Extractor** - Gemini AI extracts & infers params
+  3. **Parameter Validator** - Pydantic schema validation
+  4. **Tool Executor** - HTTP call to Tools Service
+  5. **Clarification Generator** - Gemini AI generates questions
+- **Utils**: State management, persistence helpers
+
+#### **4. AI Services** (`services/gemini_service.py`)
+- **Model**: Google Gemini 2.5 Flash
+- **Three Core Methods**:
+  - `classify_intent()` - Natural language → ToolType
+  - `extract_parameters()` - Message → Parameters + Inference
+  - `generate_clarification_question()` - Missing params → Natural question
+- **Features**: Context-aware, user profile integration, confidence scoring
+
+#### **5. Validation Layer** (`agents/validator.py`)
+- **Pydantic Schemas** (`models/schemas.py`):
+  - `NoteMakerInput` - topic, subject, note_taking_style
+  - `FlashcardGeneratorInput` - topic, count, difficulty, subject
+  - `ConceptExplainerInput` - concept_to_explain, desired_depth
+- **Validation**: Type checking, range constraints, enum validation
+
+#### **6. Tool Executor** (`agents/tool_executor.py`)
+- **HTTP Client**: httpx async client (60s timeout)
+- **Endpoints**: Maps ToolType → Tools Service URLs
+- **Error Handling**: Timeout, connection errors, API errors
+- **Metrics**: Execution time tracking
+
+#### **7. Tools Service** (`scripts/run_tools_service.py`)
+- **Separate FastAPI App** (Port 8001)
+- **AI-Powered Tools**: Uses Gemini to generate content
+- **Three Endpoints**:
+  - `POST /api/note-maker` → Structured study notes
+  - `POST /api/flashcard-generator` → Q&A flashcards
+  - `POST /api/concept-explainer` → Detailed explanations
+
+#### **8. Educational Logger** (`utils/educational_logger.py`)
+- **Purpose**: Pretty-print workflow for demos/videos
+- **Features**: Color-coded steps, emoji indicators, real-time progress
+
+---
+
+### **Data Flow Example**
+
+**Input**: "I'm struggling with calculus derivatives"
+
+```
+1. API Layer
+   ↓ Creates/loads user, conversation, chat history
+   
+2. Orchestrator
+   ↓ Initializes LangGraph state
+   
+3. Node 1: Intent Classifier
+   ↓ Gemini AI → ToolType.FLASHCARD_GENERATOR
+   
+4. Node 2: Parameter Extractor
+   ↓ Gemini AI → {"topic": "derivatives", "subject": "calculus", 
+                  "difficulty": "easy" (inferred), "count": 5 (inferred)}
+   ↓ SAVES to parameter_extractions table
+   
+5. Node 3: Validator
+   ↓ Pydantic → FlashcardGeneratorInput validated ✅
+   
+6. Node 4a: Tool Executor
+   ↓ HTTP POST → localhost:8001/api/flashcard-generator
+   ↓ Gemini generates 5 flashcards
+   ↓ SAVES to tool_executions table
+   
+7. Response
+   ↓ Returns flashcards to student
+   ↓ SAVES assistant message to chat_messages
+```
+
+---
+
+### **Key Architectural Decisions**
+
+| Decision | Rationale |
+|----------|-----------|
+| **LangGraph** | State machine ensures reliable multi-step workflows |
+| **Repository Pattern** | Clean separation of data access logic |
+| **Async/Await** | Non-blocking I/O for database and AI calls |
+| **Pydantic** | Type safety and automatic validation |
+| **Separate Tools Service** | Microservice architecture, independent scaling |
+| **5 Database Tables** | Full analytics and conversation replay capability |
+| **Gemini 2.5 Flash** | Fast, cost-effective, high-quality inference |
 
 ---
 
@@ -136,114 +337,41 @@ Output:
 
 ## 🚀 Quick Start
 
-### **Prerequisites**
-- Python 3.11+
-- PostgreSQL 15+ or Supabase account
-- Google Gemini API key ([get one here](https://ai.google.dev))
+**📚 For detailed setup and usage instructions, see [QUICKSTART.md](backend/QUICKSTART.md)**
 
-### **Installation**
+The QUICKSTART guide includes:
+- ✅ Complete installation steps
+- ✅ Environment configuration
+- ✅ Database setup
+- ✅ Running the application
+- ✅ Interactive demo walkthrough
+- ✅ Troubleshooting tips
+- ✅ API usage examples
+
+### **TL;DR - Get Running Fast**
 
 ```bash
-# 1. Clone repository
-git clone https://github.com/yourusername/legendarypotato.git
-cd legendarypotato/backend
-
-# 2. Create virtual environment
+# 1. Setup
+cd backend
 python -m venv venv
-venv\Scripts\activate  # Windows
-# source venv/bin/activate  # Mac/Linux
-
-# 3. Install dependencies
+venv\Scripts\activate  # Windows | source venv/bin/activate (Mac/Linux)
 pip install -r requirements.txt
 
-# 4. Configure environment
+# 2. Configure .env file
 cp .env.example .env
-# Edit .env with your credentials:
-#   GOOGLE_API_KEY=your_api_key_here
-#   DATABASE_URL=postgresql+asyncpg://user:password@host:5432/database
+# Add your GOOGLE_API_KEY and DATABASE_URL
 
-# 5. Initialize database
+# 3. Initialize database
 python scripts/init_db.py
 
-# 6. Verify installation
-python scripts/verify_system.py
+# 4. Run application
+python main.py
+
+# 5. Try the demo (in another terminal)
+python scripts/demo.py
 ```
 
-### **Running**
-
-Open 3 terminals:
-
-**Terminal 1 - Tools Service:**
-```bash
-cd backend
-uvicorn scripts.run_tools_service:app --port 8001 --reload
-```
-
-**Terminal 2 - Orchestrator:**
-```bash
-cd backend
-uvicorn main:app --port 8000 --reload
-```
-
-**Terminal 3 - Interactive Demo:**
-```bash
-cd backend
-python scripts\demo.py
-```
-
-**Verify:**
-- Tools API: http://localhost:8001/docs
-- Orchestrator API: http://localhost:8000/docs
-- Health Check: http://localhost:8000/health
-
----
-
-## 💻 Usage
-
-### **Interactive Demo**
-
-```bash
-python scripts\demo.py
-```
-
-**Example Session:**
-```
-Your message: I need help with calculus derivatives
-
-🔍 INTENT CLASSIFICATION
-   Tool: flashcard_generator
-   Confidence: 95%
-   
-🧠 PARAMETER EXTRACTION
-   ✓ Extracted: topic="derivatives", subject="calculus"
-   ✓ Inferred: difficulty="easy", count=5
-   💡 Reasoning: User said "need help" suggesting beginner level
-   
-⚡ EXECUTION (2.5s)
-   ✅ Generated 5 flashcards successfully!
-```
-
-### **API Usage**
-
-```python
-import requests
-
-response = requests.post(
-    "http://localhost:8000/api/orchestrate",
-    json={
-        "message": "Explain photosynthesis in detail",
-        "user_info": {
-            "user_id": "student-123",
-            "name": "Jane",
-            "grade_level": "high",
-            "learning_style_summary": "visual learner"
-        }
-    }
-)
-
-result = response.json()
-print(result["tool_response"])
-```
+**👉 [Read the full QUICKSTART guide →](backend/QUICKSTART.md)**
 
 ---
 
@@ -315,132 +443,4 @@ Check service health.
 
 ---
 
-## 🐛 Troubleshooting
 
-### **Database Connection Failed**
-```bash
-# Check DATABASE_URL format in .env
-DATABASE_URL=postgresql+asyncpg://user:password@host:5432/database
-
-# Test connection
-python scripts\init_db.py
-```
-
-### **Gemini API Key Invalid**
-```bash
-# Verify key in .env (no quotes)
-GOOGLE_API_KEY=AIzaSyC...your_key_here
-
-# Get new key at: https://ai.google.dev/
-```
-
-### **Tools Service Not Responding**
-```bash
-# Check if service is running
-netstat -ano | findstr :8001  # Windows
-lsof -ti:8001  # Mac/Linux
-
-# Start service
-uvicorn scripts.run_tools_service:app --port 8001 --reload
-```
-
-### **Port Already in Use**
-```powershell
-# Find process using port
-netstat -ano | findstr :8000
-
-# Kill process (replace PID)
-taskkill /PID 12345 /F
-
-# Or use different port
-uvicorn main:app --port 8080 --reload
-```
-
-### **Import Errors**
-```bash
-# Clear cache
-rm -rf **/__pycache__
-
-# Reinstall dependencies
-pip install -r requirements.txt --force-reinstall
-
-# Check Python version
-python --version  # Must be 3.11+
-```
-
-### **Slow Response Times**
-```bash
-# Run with debug logging
-LOG_LEVEL=DEBUG python main.py
-
-# Check Gemini API rate limits
-# Check database connection pool
-# Monitor tool service logs
-```
-
-**Common Issues:**
-- Database URL missing `+asyncpg`
-- API key has quotes or spaces
-- Virtual environment not activated
-- Wrong Python version (< 3.11)
-- Port conflicts with other services
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Here's how:
-
-### **Quick Start**
-```bash
-# 1. Fork and clone
-git clone https://github.com/YOUR_USERNAME/legendarypotato.git
-
-# 2. Create branch
-git checkout -b feature/amazing-feature
-
-# 3. Make changes
-# - Follow existing code style
-# - Add type hints and docstrings
-# - Write tests if applicable
-
-# 4. Test
-python scripts\verify_system.py
-
-# 5. Commit (conventional commits)
-git commit -m "feat: add caching for responses"
-git commit -m "fix: resolve database timeout"
-
-# 6. Push and create PR
-git push origin feature/amazing-feature
-```
-
-### **Contribution Types**
-- 🐛 Bug fixes
-- ✨ New features (tools, caching, etc.)
-- 📚 Documentation improvements
-- 🧪 Tests
-- 🎨 UI/UX enhancements
-
-### **Code Style**
-```python
-# Use type hints
-async def classify_intent(message: str, context: dict) -> dict:
-    """Classify user intent using Gemini AI."""
-    pass
-
-# Use async/await for I/O
-async with database.session() as session:
-    result = await session.execute(query)
-```
-
-### **Commit Convention**
-- `feat:` New feature
-- `fix:` Bug fix
-- `docs:` Documentation
-- `style:` Code formatting
-- `refactor:` Code refactoring
-- `test:` Tests
-- `chore:` Maintenance
-
-</div>
