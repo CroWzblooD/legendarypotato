@@ -8,8 +8,8 @@ import logging
 import sys
 from pathlib import Path
 
-# Add backend to path
-sys.path.insert(0, str(Path(__file__).parent))
+# Add backend to path (parent of scripts folder)
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from database.database import init_db, check_db_connection, engine
 from database.models import Base
@@ -67,15 +67,16 @@ async def initialize_database():
     # Step 3: Verify tables
     print("Step 3: Verifying table creation...")
     try:
+        from sqlalchemy import text
         async with engine.begin() as conn:
             # Query to check if tables exist
             result = await conn.execute(
-                """
-                SELECT table_name 
-                FROM information_schema.tables 
-                WHERE table_schema = 'public'
-                ORDER BY table_name
-                """
+                text("""
+                    SELECT table_name 
+                    FROM information_schema.tables 
+                    WHERE table_schema = 'public'
+                    ORDER BY table_name
+                """)
             )
             tables = [row[0] for row in result]
             
@@ -104,9 +105,11 @@ async def initialize_database():
     print("="*80)
     print()
     print("Next steps:")
-    print("1. Start the tools service: python tools_main.py")
+    print("1. Start the tools service: python scripts/run_tools_service.py")
     print("2. Start the orchestrator service: python main.py")
-    print("3. Run the demo: python final_demo.py")
+    print("3. Run the demo: python scripts/demo.py")
+    print()
+    print("Or read QUICKSTART.md for detailed instructions!")
     print()
     
     return True

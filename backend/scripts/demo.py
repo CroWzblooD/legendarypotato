@@ -34,8 +34,8 @@ import uuid
 import time
 from typing import Optional
 
-# Add backend to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add backend to path (parent of scripts folder)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from database import async_session_maker, init_db, check_db_connection
 from database.repositories import (
